@@ -18,6 +18,7 @@ type Client struct {
 
 	Persons *PersonsService
 	RewardAccount *RewardAccountService
+	Stores *StoresService
 }
 
 type service struct {
@@ -108,15 +109,18 @@ func NewClient(cC *ClientConfig) *Client {
 		SetCommonBasicAuth(cC.User, cC.Password).
 		SetBaseURL(fmt.Sprintf("https://%s:%s/%s", cC.Host , cC.Port, cC.Name)).
 		SetCommonHeader("Content-Type", "text/xml").
+		SetCommonHeader("Accept", "version_4.0").
 		SetCommonQueryParam("CountryCode", cC.CountryCode),
 		nil,
 		nil,
 		nil,
+		nil, 
 		nil,
 	}))
 
 	client.Persons = &PersonsService{client}
 	client.RewardAccount = &RewardAccountService{client}
+	client.Stores = &StoresService{client}
 
 	return client
 }
