@@ -104,6 +104,11 @@ func withMaxConcurrent(c *Client) *Client {
     return c
 }
 
+func WithCustomData(c *Client) *Client {
+	c.SetCommonQueryParam("CustomData", "true")
+	return c
+}
+
 func NewClient(cC *ClientConfig) *Client {
 	client := withMaxConcurrent(withThrottler(&Client{ req.C().
 		SetCommonBasicAuth(cC.User, cC.Password).

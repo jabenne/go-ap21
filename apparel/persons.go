@@ -7,8 +7,6 @@ import (
 
 type PersonsService service
 
-type CustomData struct {}
-
 type Addresses struct {
 	Billing Address `xml:"Billing,omitempty"`
 }
@@ -65,6 +63,30 @@ type Reference struct {
 	ID              string `xml:"Id,omitempty"`
 }
 
+type CustomData struct {
+	Cards struct {
+		Card []Card `xml:"Card"`
+	}`xml:"Cards"`
+}
+
+type Card struct {
+	Name  string `xml:"Name,attr"`
+ 	Fields struct {
+		Field []Field `xml:"Field"`
+	} `xml:"Fields"`
+} 
+
+type Field struct {
+	Name       string `xml:"Name,attr"`
+	Value string `xml:",chardata"`
+	ListValues []struct {
+		Text  string `xml:",chardata"`
+		Type  string `xml:"Type,attr"`
+		Value string `xml:"Value"`
+	} `xml:"ListValues,omitempty"`
+} 
+	
+
 type Person struct {
 	ID              string   `xml:"Id,omitempty"`
 	Code            string   `xml:"Code,omitempty"`
@@ -79,6 +101,7 @@ type Person struct {
 	Privacy         string   `xml:"Privacy,omitempty"`
 	UpdateTimeStamp string   `xml:"UpdateTimeStamp,omitempty"`
 	References      []Reference `xml:"References,omitempty"`
+	CustomData *CustomData `xml:"CustomData,omitempty"`
 	IsAgent   string `xml:"IsAgent,omitempty"`
 	Addresses *Addresses `xml:"Addresses,omitempty"`
 	Contacts *Contact`xml:"Contacts,omitempty"`
@@ -157,10 +180,9 @@ func (s *PersonsService) GetById(id string) (*Person, error) {
 
 	_, err := s.client.R().
 		SetPathParam("id", id).
-		SetSuccessResult(resSucc).
-		SetErrorResult(resErr).
+		SetSuccessResult(&resSucc).
+		SetErrorResult(&resErr).
 		Get("/persons/{id}")
-
 	if err != nil {
 		return nil, err
 	}
