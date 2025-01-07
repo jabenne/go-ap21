@@ -1,6 +1,7 @@
 package apparel
 
 import (
+	"encoding/xml"
 	"fmt"
 	"strings"
 )
@@ -64,27 +65,45 @@ type Reference struct {
 }
 
 type CustomData struct {
-	Cards struct {
-		Card []Card `xml:"Card"`
-	}`xml:"Cards"`
+	Cards []Card `xml:"Cards>Card,omitempty"`
 }
 
 type Card struct {
-	Name  string `xml:"Name,attr"`
- 	Fields struct {
-		Field []Field `xml:"Field"`
-	} `xml:"Fields"`
+	Name  string `xml:"Name,attr,omitempty"`
+ 	Fields []Field `xml:"Fields>Field,omitempty"`
 } 
 
 type Field struct {
 	Name       string `xml:"Name,attr"`
 	Value string `xml:",chardata"`
-	ListValues []struct {
-		Text  string `xml:",chardata"`
-		Type  string `xml:"Type,attr"`
-		Value string `xml:"Value"`
-	} `xml:"ListValues,omitempty"`
+	ListValues []ListValue `xml:"ListValues,omitempty"`
 } 
+
+func (f Field) MarshalXML(e *xml.Encoder, start xml.StartElement) (err error) {
+	if len(f.ListValues) > 0 {
+		return e.Encode(struct { 
+			XMLName xml.Name `xml:"Field"`
+			Name string `xml:"Name,attr"` 
+			ListValues []ListValue `xml:"ListValues,omitempty"`} {
+			Name: f.Name,
+			ListValues: f.ListValues,
+		})
+	} else {
+		return e.Encode(struct { 
+			XMLName xml.Name `xml:"Field"`
+			Name string `xml:"Name,attr"` 
+			Value string `xml:",chardata"`} {
+			Name: f.Name,
+			Value: f.Value,
+
+		})
+	}
+}
+
+type ListValue struct {
+	Type  string `xml:"Type,attr"`
+	Value string `xml:"Value"`
+}
 	
 
 type Person struct {
@@ -100,7 +119,7 @@ type Person struct {
 	JobTitle        string   `xml:"JobTitle,omitempty"`
 	Privacy         string   `xml:"Privacy,omitempty"`
 	UpdateTimeStamp string   `xml:"UpdateTimeStamp,omitempty"`
-	References      []Reference `xml:"References,omitempty"`
+	References      []Reference `xml:"References>Reference,omitempty"`
 	CustomData *CustomData `xml:"CustomData,omitempty"`
 	IsAgent   string `xml:"IsAgent,omitempty"`
 	Addresses *Addresses `xml:"Addresses,omitempty"`
