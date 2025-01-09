@@ -24,7 +24,7 @@ type Address struct {
 
 type Contact struct {
 	Email  string `xml:"Email,omitempty"`
-	Phones Phones `xml:"Phones,omitempty"`
+	Phones *Phones `xml:"Phones,omitempty"`
 } 
 
 type Phones struct {
@@ -60,8 +60,8 @@ type Loyalty struct {
 }
 
 type Reference struct {
-	ReferenceTypeId string `xml:"ReferenceTypeId,omitempty"`
-	ID              string `xml:"Id,omitempty"`
+	ReferenceTypeId int `xml:"ReferenceTypeId,omitempty"`
+	ID              int `xml:"Id,omitempty"`
 }
 
 type CustomData struct {
