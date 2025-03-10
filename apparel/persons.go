@@ -8,6 +8,11 @@ import (
 
 type PersonsService service
 
+type UpdateTimeStamp struct {
+	PersonId        string `xml:"PersonId"`
+	UpdateTimeStamp string `xml:"UpdateTimeStamp"`
+}
+
 type Addresses struct {
 	Billing Address `xml:"Billing,omitempty"`
 }
@@ -201,6 +206,23 @@ func (s *PersonsService) GetById(id string) (*Person, error) {
 		SetSuccessResult(&resSucc).
 		SetErrorResult(&resErr).
 		Get("/persons/{id}")
+	if err != nil {
+		return nil, err
+	}
+
+	return &resSucc, nil
+}
+
+func (s *PersonsService) GetUpdateTimeStamp(id string) (*UpdateTimeStamp, error) {
+	var resSucc UpdateTimeStamp
+	var resErr APIError
+
+	_, err := s.client.R().
+		SetHeader("Accept", "version_2.0").
+		SetPathParam("id", id).
+		SetSuccessResult(&resSucc).
+		SetErrorResult(&resErr).
+		Get("/Persons/{id}/UpdateTimeStamp")
 	if err != nil {
 		return nil, err
 	}
