@@ -23,15 +23,15 @@ type Address struct {
 }
 
 type Contact struct {
-	Email  string `xml:"Email,omitempty"`
+	Email  string  `xml:"Email,omitempty"`
 	Phones *Phones `xml:"Phones,omitempty"`
-} 
+}
 
 type Phones struct {
 	Home   string `xml:"Home,omitempty"`
 	Mobile string `xml:"Mobile,omitempty"`
 	Work   string `xml:"Work,omitempty"`
-} 
+}
 
 type RewardsAccount struct {
 	ID          string `xml:"Id,omitempty"`
@@ -41,10 +41,10 @@ type RewardsAccount struct {
 	TierName    string `xml:"TierName,omitempty"`
 }
 
-type Currency struct { 
+type Currency struct {
 	Code   string `xml:"Code,omitempty"`
 	Format string `xml:"Format,omitempty"`
-} 
+}
 
 type Loyalty struct {
 	ID            string `xml:"Id,omitempty"`
@@ -69,33 +69,34 @@ type CustomData struct {
 }
 
 type Card struct {
-	Name  string `xml:"Name,attr,omitempty"`
- 	Fields []Field `xml:"Fields>Field,omitempty"`
-} 
+	Name   string  `xml:"Name,attr,omitempty"`
+	Fields []Field `xml:"Fields>Field,omitempty"`
+}
 
 type Field struct {
-	Name       string `xml:"Name,attr"`
-	Value string `xml:",chardata"`
+	Name       string      `xml:"Name,attr"`
+	Value      string      `xml:",chardata"`
 	ListValues []ListValue `xml:"ListValues,omitempty"`
-} 
+}
 
 func (f Field) MarshalXML(e *xml.Encoder, start xml.StartElement) (err error) {
 	if len(f.ListValues) > 0 {
-		return e.Encode(struct { 
-			XMLName xml.Name `xml:"Field"`
-			Name string `xml:"Name,attr"` 
-			ListValues []ListValue `xml:"ListValues,omitempty"`} {
-			Name: f.Name,
+		return e.Encode(struct {
+			XMLName    xml.Name    `xml:"Field"`
+			Name       string      `xml:"Name,attr"`
+			ListValues []ListValue `xml:"ListValues,omitempty"`
+		}{
+			Name:       f.Name,
 			ListValues: f.ListValues,
 		})
 	} else {
-		return e.Encode(struct { 
+		return e.Encode(struct {
 			XMLName xml.Name `xml:"Field"`
-			Name string `xml:"Name,attr"` 
-			Value string `xml:",chardata"`} {
-			Name: f.Name,
+			Name    string   `xml:"Name,attr"`
+			Value   string   `xml:",chardata"`
+		}{
+			Name:  f.Name,
 			Value: f.Value,
-
 		})
 	}
 }
@@ -104,44 +105,42 @@ type ListValue struct {
 	Type  string `xml:"Type,attr"`
 	Value string `xml:"Value"`
 }
-	
 
 type Person struct {
-	ID              string   `xml:"Id,omitempty"`
-	Code            string   `xml:"Code,omitempty"`
-	Title           string   `xml:"Title,omitempty"`
-	Initials        string   `xml:"Initials,omitempty"`
-	Firstname       string   `xml:"Firstname,omitempty"`
-	Surname         string   `xml:"Surname,omitempty"`
-	Sex             string   `xml:"Sex,omitempty"`
-	DateOfBirth     string   `xml:"DateOfBirth,omitempty"`
-	StartDate       string   `xml:"StartDate,omitempty"`
-	JobTitle        string   `xml:"JobTitle,omitempty"`
-	Privacy         string   `xml:"Privacy,omitempty"`
-	UpdateTimeStamp string   `xml:"UpdateTimeStamp,omitempty"`
+	ID              string      `xml:"Id,omitempty"`
+	Code            string      `xml:"Code,omitempty"`
+	Title           string      `xml:"Title,omitempty"`
+	Initials        string      `xml:"Initials,omitempty"`
+	Firstname       string      `xml:"Firstname,omitempty"`
+	Surname         string      `xml:"Surname,omitempty"`
+	Sex             string      `xml:"Sex,omitempty"`
+	DateOfBirth     string      `xml:"DateOfBirth,omitempty"`
+	StartDate       string      `xml:"StartDate,omitempty"`
+	JobTitle        string      `xml:"JobTitle,omitempty"`
+	Privacy         string      `xml:"Privacy,omitempty"`
+	UpdateTimeStamp string      `xml:"UpdateTimeStamp,omitempty"`
 	References      []Reference `xml:"References>Reference,omitempty"`
-	CustomData *CustomData `xml:"CustomData,omitempty"`
-	IsAgent   string `xml:"IsAgent,omitempty"`
-	Addresses *Addresses `xml:"Addresses,omitempty"`
-	Contacts *Contact`xml:"Contacts,omitempty"`
-	Currency *Currency `xml:"Currency,omitempty"`
-	Loyalties *struct {
+	CustomData      *CustomData `xml:"CustomData,omitempty"`
+	IsAgent         string      `xml:"IsAgent,omitempty"`
+	Addresses       *Addresses  `xml:"Addresses,omitempty"`
+	Contacts        *Contact    `xml:"Contacts,omitempty"`
+	Currency        *Currency   `xml:"Currency,omitempty"`
+	Loyalties       *struct {
 		Loyalty Loyalty `xml:"Loyalty,omitempty"`
 	} `xml:"Loyalties,omitempty"`
 	RewardsAccounts *struct {
-		Account RewardsAccount`xml:"Account,omitempty"`
+		Account RewardsAccount `xml:"Account,omitempty"`
 	} `xml:"RewardsAccounts,omitempty"`
 }
 
-
 type PersonsGetOpts struct {
-	Surname string
-	Firstname string
-	Email string
-	Phone string
-	Code string
-	Password string
-	LoyaltyOnly bool
+	Surname      string
+	Firstname    string
+	Email        string
+	Phone        string
+	Code         string
+	Password     string
+	LoyaltyOnly  bool
 	UpdatedAfter string
 }
 
@@ -149,7 +148,7 @@ func (o *PersonsGetOpts) BuildParams() map[string]string {
 	params := make(map[string]string)
 
 	if o.LoyaltyOnly {
-		params["loyaltyonly"] = "true" 
+		params["loyaltyonly"] = "true"
 	}
 	if o.UpdatedAfter != "" {
 		params["updatedafter"] = o.UpdatedAfter
@@ -177,7 +176,7 @@ func (o *PersonsGetOpts) BuildParams() map[string]string {
 }
 
 func (s *PersonsService) Get(p *PersonsGetOpts) (*Person, error) {
-	var resSucc Person 
+	var resSucc Person
 	var resErr APIError
 
 	_, err := s.client.R().
@@ -194,7 +193,7 @@ func (s *PersonsService) Get(p *PersonsGetOpts) (*Person, error) {
 }
 
 func (s *PersonsService) GetById(id string) (*Person, error) {
-	var resSucc Person 
+	var resSucc Person
 	var resErr APIError
 
 	_, err := s.client.R().
@@ -210,7 +209,7 @@ func (s *PersonsService) GetById(id string) (*Person, error) {
 }
 
 func (s *PersonsService) Post(b *Person) (string, error) {
-	var apiErr APIError 
+	var apiErr APIError
 	res, err := s.client.R().
 		SetBody(b).
 		SetErrorResult(&apiErr).
@@ -218,18 +217,40 @@ func (s *PersonsService) Post(b *Person) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	switch s := res.StatusCode; s {
-		case 201:
-			location := res.GetHeader("location")
-			lastPath := strings.Split(location, "/")[5]
-			return lastPath[:strings.IndexByte(lastPath, '?')], nil
-		case 400:
-			return "", apiErr 
-		case 403:
-			return "", apiErr
-		default:
-			return "", fmt.Errorf("Unhandled Status Code")
+	case 201:
+		location := res.GetHeader("location")
+		lastPath := strings.Split(location, "/")[5]
+		return lastPath[:strings.IndexByte(lastPath, '?')], nil
+	case 400:
+		return "", apiErr
+	case 403:
+		return "", apiErr
+	default:
+		return "", fmt.Errorf("Unhandled Status Code")
 	}
 }
 
+func (s *PersonsService) Put(id string, b *Person) error {
+	var apiErr APIError
+	res, err := s.client.R().
+		SetHeader("Accept", "version_2.0").
+		SetBody(b).
+		SetErrorResult(&apiErr).
+		SetPathParam("id", id).
+		Put("/persons/{id}")
+	if err != nil {
+		return err
+	}
+	switch s := res.StatusCode; s {
+	case 200:
+		return nil
+	case 400:
+		return apiErr
+	case 403:
+		return apiErr
+	default:
+		return fmt.Errorf("Unhandled Status Code: %s", apiErr.Error())
+	}
+}

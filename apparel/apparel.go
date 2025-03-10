@@ -109,6 +109,11 @@ func WithCustomData(c *Client) *Client {
 	return c
 }
 
+func WithDebug(c *Client) *Client {
+	c.EnableDebugLog()
+	return c
+}
+
 func NewClient(cC *ClientConfig) *Client {
 	client := withMaxConcurrent(withThrottler(&Client{ req.C().
 		SetCommonBasicAuth(cC.User, cC.Password).
