@@ -79,7 +79,7 @@ type PointsRedemption struct {
 	ExpiryDate  string `xml:"ExpiryDate,omitempty"`
 }
 
-func (s *RewardAccountService) PostPointsRedemption(raID string, b *PointsRedemption) error {
+func (s *RewardAccountService) PointsRedemption(raID string, b *PointsRedemption) error {
 	var rE APIError
 	res, err := s.client.R().
 		SetBody(b).
@@ -129,6 +129,39 @@ func (s *RewardAccountService) PostReward(raID string, b *RewardPost) error {
 
 	switch s := res.StatusCode; s {
 	case 201:
+		return nil
+	case 400:
+		return rE
+	case 403:
+		return rE
+	default:
+		return fmt.Errorf("Unhandled Status Code: %d", s)
+	}
+}
+
+type RewardRedemption struct {
+	AutoConfirm bool			   `xml:"AutoConfirm"`
+	RequestID   string             `xml:"RequestId,omitempty"`
+	PersonID    string             `xml:"PersonId,omitempty"`
+	Amount      int                `xml:"Amount,omitempty"`
+	Description string             `xml:"Description,omitempty"`
+	Reference   string             `xml:"Reference,omitempty"`
+	ExpiryDate  string             `xml:"ExpiryDate,omitempty"`
+}
+
+func (s *RewardAccountService) RewardRedemption(raID string, b *RewardRedemption) error {
+	var rE APIError
+	res, err := s.client.R().
+		SetBody(b).
+		SetPathParam("raID", raID).
+		SetErrorResult(&rE).
+		Post("/Rewards/Accounts/{raID}/Rewards/Redemptions")
+	if err != nil {
+		return err
+	}
+
+	switch s := res.StatusCode; s {
+	case 200:
 		return nil
 	case 400:
 		return rE
