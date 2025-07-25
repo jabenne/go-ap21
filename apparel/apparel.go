@@ -10,15 +10,15 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-
 type Client struct {
 	*req.Client
 	ratelimiter ratelimit.Limiter
-	gate *semaphore.Weighted
+	gate        *semaphore.Weighted
 
-	Persons *PersonsService
+	Persons       *PersonsService
 	RewardAccount *RewardAccountService
-	Stores *StoresService
+	Stores        *StoresService
+	Products	  *ProductsService
 }
 
 type service struct {
@@ -31,11 +31,11 @@ type CustomHttp struct {
 }
 
 type ClientConfig struct {
-	User string
-	Password string
-	Name string
-	Host string
-	Port string
+	User        string
+	Password    string
+	Name        string
+	Host        string
+	Port        string
 	CountryCode string
 }
 
@@ -71,37 +71,37 @@ func NewConfigFromEnv() (*ClientConfig, error) {
 	}
 
 	return &ClientConfig{
-		User: user,
-		Password: password,
-		Host: host,
-		Name: name,
-		Port: port,
+		User:        user,
+		Password:    password,
+		Host:        host,
+		Name:        name,
+		Port:        port,
 		CountryCode: countryCode,
 	}, nil
 }
 
-func withThrottler(c *Client) *Client{
-    c.ratelimiter = ratelimit.New(100)
-    c.WrapRoundTripFunc(func (rt req.RoundTripper) req.RoundTripFunc {
-        return func(req *req.Request) (resp *req.Response, err error) {
-            c.ratelimiter.Take()
-		    return rt.RoundTrip(req)
-	    }
-    })
-    return c
+func withThrottler(c *Client) *Client {
+	c.ratelimiter = ratelimit.New(100)
+	c.WrapRoundTripFunc(func(rt req.RoundTripper) req.RoundTripFunc {
+		return func(req *req.Request) (resp *req.Response, err error) {
+			c.ratelimiter.Take()
+			return rt.RoundTrip(req)
+		}
+	})
+	return c
 }
 
 func withMaxConcurrent(c *Client) *Client {
-    c.gate = semaphore.NewWeighted(20)
-    c.WrapRoundTripFunc(func (rt req.RoundTripper) req.RoundTripFunc {
-        return func(req *req.Request) (resp *req.Response, err error) {
-            ctx := context.Background()
-            c.gate.Acquire(ctx, 1)
-            defer c.gate.Release(1)
-		    return rt.RoundTrip(req)
-	    }
-    })
-    return c
+	c.gate = semaphore.NewWeighted(20)
+	c.WrapRoundTripFunc(func(rt req.RoundTripper) req.RoundTripFunc {
+		return func(req *req.Request) (resp *req.Response, err error) {
+			ctx := context.Background()
+			c.gate.Acquire(ctx, 1)
+			defer c.gate.Release(1)
+			return rt.RoundTrip(req)
+		}
+	})
+	return c
 }
 
 func WithCustomData(c *Client) *Client {
@@ -115,25 +115,24 @@ func WithDebug(c *Client) *Client {
 }
 
 func NewClient(cC *ClientConfig) *Client {
-	client := withMaxConcurrent(withThrottler(&Client{ req.C().
+	client := withMaxConcurrent(withThrottler(&Client{req.C().
 		SetCommonBasicAuth(cC.User, cC.Password).
-		SetBaseURL(fmt.Sprintf("https://%s:%s/%s", cC.Host , cC.Port, cC.Name)).
+		SetBaseURL(fmt.Sprintf("https://%s:%s/%s", cC.Host, cC.Port, cC.Name)).
 		SetCommonHeader("Content-Type", "text/xml").
 		SetCommonHeader("Accept", "version_4.0").
 		SetCommonQueryParam("CountryCode", cC.CountryCode),
 		nil,
 		nil,
 		nil,
-		nil, 
+		nil,
+		nil,
 		nil,
 	}))
 
 	client.Persons = &PersonsService{client}
 	client.RewardAccount = &RewardAccountService{client}
 	client.Stores = &StoresService{client}
+	client.Products = &ProductsService{client}
 
 	return client
 }
-
-
-
